@@ -20,10 +20,11 @@ export default function TMDBSearch({ onSelect }) {
       setIsLoading(true);
 
       const response = await fetch(
-        `http://localhost:5000/api/movies/search?query=${encodeURIComponent(value)}`,
+        `http://localhost:5000/api/media/search?query=${encodeURIComponent(value)}`,
       );
 
       const data = await response.json();
+      // console.log(data)
 
       setMovies(data.results || []);
     } catch (error) {
@@ -35,42 +36,42 @@ export default function TMDBSearch({ onSelect }) {
   }
 
   async function handleSelectMovie(movie) {
-    setQuery(movie.title);
+    setQuery(movie.title || movie.name);
     setMovies([]);
+    console.log(movie)
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/movies/${movie.id}`,
+        `http://localhost:5000/api/media/${movie.media_type}/${movie.id}`,
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error("Failed to fetch movie details");
+        throw new Error("Failed to fetch media details");
       }
 
       onSelect(data);
     } catch (error) {
-      console.error("Movie details failed:", error);
+      console.error("Media details failed:", error);
     }
   }
-
   return (
     <section>
       <div className="mb-4">
-  <div className="mb-2 flex items-center gap-2">
-    <span className="h-1.5 w-1.5 rounded-full bg-[#e5a84b]" />
-    <span className=" font-semibold tracking-[0.2em] text-[#e5a84b] uppercase">
-      Quick Search
-    </span>
-  </div>
+        <div className="mb-2 flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#e5a84b]" />
+          <span className=" font-semibold tracking-[0.2em] text-[#e5a84b] uppercase">
+            Quick Search
+          </span>
+        </div>
 
-  <h3 className="font-semibold text-white">Find a title</h3>
+        <h3 className="font-semibold text-white">Find a title</h3>
 
-  <p className="mt-1 text-sm text-white/40">
-    Search shows you are looking for. Lights, camera, discover!
-  </p>
-</div>
+        <p className="mt-1 text-sm text-white/40">
+          Search shows you are looking for. Lights, camera, discover!
+        </p>
+      </div>
 
       <div className="relative mt-3">
         <Magnifier
@@ -101,7 +102,7 @@ export default function TMDBSearch({ onSelect }) {
               {movie.poster_path ? (
                 <img
                   src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
-                  alt={movie.title}
+                  alt={movie.title || movie.name}
                   className="h-14 w-10 rounded object-cover"
                 />
               ) : (
@@ -111,10 +112,16 @@ export default function TMDBSearch({ onSelect }) {
               )}
 
               <div>
-                <p className="text-sm font-medium text-white">{movie.title}</p>
+                <p className="text-sm font-medium text-white">
+                  {movie.title || movie.name}
+                </p>
 
                 <p className="mt-1 text-xs text-white/40">
-                  {movie.release_date || "Release date unavailable"}
+                  {movie.media_type === "tv" ? "TV Series" : "Movie"} ·{" "}
+                  {(movie.release_date || movie.first_air_date || "").slice(
+                    0,
+                    4,
+                  ) || "Year unavailable"}
                 </p>
               </div>
             </button>

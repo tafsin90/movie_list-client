@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import TMDBSearch from "./TMDBSearch";
-import { SiSitepoint  } from "react-icons/si";
+import { SiSitepoint } from "react-icons/si";
+import { format } from "date-fns";
 
 const inputClass =
   "mt-2 w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#e5a84b]";
@@ -10,6 +11,7 @@ const inputClass =
 const defaultCategories = [
   "Movie",
   "Series",
+  "Animation",
   "Anime",
   "Documentary",
   "Short Film",
@@ -38,8 +40,10 @@ export default function MediaForm({ destination }) {
     releaseDate: "",
     imdbRating: "",
     runtime: "",
+    seasons: "",
     language: "",
     country: "",
+    mediaType: "movie",
   });
 
   const [categories, setCategories] = useState(defaultCategories);
@@ -58,12 +62,19 @@ export default function MediaForm({ destination }) {
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : "",
       description: movie.overview || "",
-      releaseDate: movie.release_date || "",
+      releaseDate: movie.release_date
+        ? format(new Date(movie.release_date), "yyyy")
+        : "",
       imdbRating: movie.imdb_rating || "",
-      runtime: formatRuntime(movie.runtime),
+      runtime: movie.media_type === "movie" ? formatRuntime(movie.runtime) : "",
+
+      seasons: movie.media_type === "tv" ? movie.seasons || "" : "",
       language: movie.language || "",
       country: movie.country || "",
+      mediaType: movie.media_type || "movie",
     });
+
+    setSelectedCategory(movie.media_type === "tv" ? "Series" : "Movie");
 
     setGenres(movie.genres?.map((genre) => genre.name) || []);
   };
@@ -120,8 +131,65 @@ export default function MediaForm({ destination }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // API integration will be added later.
+    const form = e.currentTarget;
+    const formData = new FormData(e.currentTarget);
+    const mediaData = Object.fromEntries(formData.entries());
+
+    mediaData.category = selectedCategory;
+    mediaData.genres = genres;
+    mediaData.status = destination;
+
+    console.log("Media Data:", mediaData);
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   // try {
+  //   //   const mediaData = {
+  //   //     ...formData,
+  //   //     category: selectedCategory,
+  //   //     genres: genres,
+  //   //     status: destination,
+  //   //   };
+
+  //   //   const response = await fetch("http://localhost:5000/api/media", {
+  //   //     method: "POST",
+  //   //     headers: {
+  //   //       "Content-Type": "application/json",
+  //   //     },
+  //   //     body: JSON.stringify(mediaData),
+  //   //   });
+
+  //   //   const data = await response.json();
+
+  //   //   if (!response.ok) {
+  //   //     throw new Error(data.message || "Failed to add media");
+  //   //   }
+
+  //   //   alert("Media added successfully!");
+
+  //   //   setFormData({
+  //   //     title: "",
+  //   //     poster: "",
+  //   //     description: "",
+  //   //     releaseDate: "",
+  //   //     imdbRating: "",
+  //   //     runtime: "",
+  //   //     language: "",
+  //   //     country: "",
+  //   //     mediaType: "movie",
+  //   //   });
+
+  //   //   setGenres([]);
+  //   //   setSelectedCategory("Movie");
+  //   //   setCustomCategory("");
+  //   //   setCustomGenre("");
+  //   // } catch (error) {
+  //   //   console.error("Submission failed:", error);
+  //   //   alert(error.message);
+  //   // }
+  // };
 
   return (
     <div>
@@ -161,7 +229,7 @@ export default function MediaForm({ destination }) {
             {/* Title */}
             <div>
               <div className="flex items-center gap-2">
-                <SiSitepoint className="text-[#e5a84b]"  />
+                <SiSitepoint className="text-[#e5a84b]" />
 
                 <h3 className="font-semibold text-white">Title</h3>
               </div>
@@ -186,7 +254,7 @@ export default function MediaForm({ destination }) {
             {/* Category */}
             <section>
               <div className="flex items-center gap-2">
-                <SiSitepoint className="text-[#e5a84b]"  />
+                <SiSitepoint className="text-[#e5a84b]" />
 
                 <h3 className="font-semibold text-white">Category</h3>
               </div>
@@ -196,7 +264,13 @@ export default function MediaForm({ destination }) {
                   <button
                     key={category}
                     type="button"
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setFormData({
+                        ...formData,
+                        mediaType: category === "Series" ? "tv" : "movie",
+                      });
+                    }}
                     className={`rounded-full border px-4 py-2 text-xs font-medium transition ${
                       selectedCategory === category
                         ? "border-[#e5a84b] bg-[#e5a84b]/10 text-[#e5a84b]"
@@ -232,62 +306,10 @@ export default function MediaForm({ destination }) {
               </button>
             </section>
 
-            {/* Poster URL */}
-            <div>
-              <div className="flex items-center gap-2">
-                <SiSitepoint className="text-[#e5a84b]"  />
-
-                <h3 className="font-semibold text-white">Poster link</h3>
-              </div>
-
-              <p className="mt-1 text-xs text-white/40">
-                Enter your movie poster link
-              </p>
-
-              <input
-                id="poster"
-                name="poster"
-                type="url"
-                value={formData.poster}
-                onChange={(e) =>
-                  setFormData({ ...formData, poster: e.target.value })
-                }
-                placeholder="https://example.com/poster.jpg"
-                className={inputClass}
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <div className="flex items-center gap-2">
-                <SiSitepoint className="text-[#e5a84b]"  />
-
-                <h3 className="font-semibold text-white">Description</h3>
-              </div>
-
-              <p className="mt-1 text-xs text-white/40">
-                Describe your plot{" "}
-                <span className="italic text-white/70 font-bold">
-                  (optional)
-                </span>
-              </p>
-              <textarea
-                id="description"
-                name="description"
-                rows={3}
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder="Write a short description..."
-                className={`${inputClass} resize-none`}
-              />
-            </div>
-
             {/* Genres */}
             <section>
               <div className="flex items-center gap-2">
-                <SiSitepoint className="text-[#e5a84b]"  />
+                <SiSitepoint className="text-[#e5a84b]" />
 
                 <h3 className="font-semibold text-white">Genres</h3>
               </div>
@@ -340,13 +362,64 @@ export default function MediaForm({ destination }) {
                 </p>
               )}
             </section>
+            {/* Poster URL */}
+            <div>
+              <div className="flex items-center gap-2">
+                <SiSitepoint className="text-[#e5a84b]" />
+
+                <h3 className="font-semibold text-white">Poster link</h3>
+              </div>
+
+              <p className="mt-1 text-xs text-white/40">
+                Enter your movie poster link
+              </p>
+
+              <input
+                id="poster"
+                name="poster"
+                type="url"
+                value={formData.poster}
+                onChange={(e) =>
+                  setFormData({ ...formData, poster: e.target.value })
+                }
+                placeholder="https://example.com/poster.jpg"
+                className={inputClass}
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <div className="flex items-center gap-2">
+                <SiSitepoint className="text-[#e5a84b]" />
+
+                <h3 className="font-semibold text-white">Description</h3>
+              </div>
+
+              <p className="mt-1 text-xs text-white/40">
+                Describe your plot{" "}
+                <span className="italic text-white/70 font-bold">
+                  (optional)
+                </span>
+              </p>
+              <textarea
+                id="description"
+                name="description"
+                rows={3}
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                placeholder="Write a short description..."
+                className={`${inputClass} resize-none`}
+              />
+            </div>
 
             {/* Movie Information */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               {/* Release Date */}
               <div>
                 <div className="flex items-center gap-2">
-                  <SiSitepoint className="text-[#e5a84b]"  />
+                  <SiSitepoint className="text-[#e5a84b]" />
 
                   <h3 className="font-semibold text-white">Release Date</h3>
                 </div>
@@ -354,11 +427,16 @@ export default function MediaForm({ destination }) {
                 <input
                   id="releaseDate"
                   name="releaseDate"
-                  type="date"
-                  value={formData.releaseDate}
+                  type="text"
+                  value={
+                    formData.releaseDate
+                      ? format(new Date(formData.releaseDate), "yyyy")
+                      : ""
+                  }
                   onChange={(e) =>
                     setFormData({ ...formData, releaseDate: e.target.value })
                   }
+                  placeholder="e.g. 2014"
                   className={inputClass}
                 />
               </div>
@@ -366,7 +444,7 @@ export default function MediaForm({ destination }) {
               {/* IMDb Rating */}
               <div>
                 <div className="flex items-center gap-2">
-                  <SiSitepoint className="text-[#e5a84b]"  />
+                  <SiSitepoint className="text-[#e5a84b]" />
 
                   <h3 className="font-semibold text-white">IMDB Rating </h3>
                 </div>
@@ -386,17 +464,20 @@ export default function MediaForm({ destination }) {
                   className={inputClass}
                 />
               </div>
+            </div>
 
+            {/* Runtime / Total Seasons */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               {/* Runtime */}
               <div>
                 <div className="flex items-center gap-2">
-                  <SiSitepoint className="text-[#e5a84b]"  />
-
+                  <SiSitepoint className="text-[#e5a84b]" />
                   <h3 className="font-semibold text-white">Runtime</h3>
                 </div>
 
                 <input
                   type="text"
+                  name="runtime"
                   value={formData.runtime}
                   onChange={(e) =>
                     setFormData({
@@ -406,7 +487,30 @@ export default function MediaForm({ destination }) {
                   }
                   placeholder="e.g. 1 hour 43 min"
                   className={inputClass}
-                />  
+                />
+              </div>
+
+              {/* Total Seasons */}
+              <div>
+                <div className="flex items-center gap-2">
+                  <SiSitepoint className="text-[#e5a84b]" />
+                  <h3 className="font-semibold text-white">Total Seasons</h3>
+                </div>
+
+                <input
+                  type="number"
+                  name="seasons"
+                  min="1"
+                  value={formData.seasons}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      seasons: e.target.value,
+                    })
+                  }
+                  placeholder="e.g. 5"
+                  className={inputClass}
+                />
               </div>
             </div>
 
@@ -414,7 +518,7 @@ export default function MediaForm({ destination }) {
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <SiSitepoint className="text-[#e5a84b]"  />
+                  <SiSitepoint className="text-[#e5a84b]" />
 
                   <h3 className="font-semibold text-white">Country</h3>
                 </div>
@@ -434,7 +538,7 @@ export default function MediaForm({ destination }) {
 
               <div>
                 <div className="flex items-center gap-2">
-                  <SiSitepoint className="text-[#e5a84b]"  />
+                  <SiSitepoint className="text-[#e5a84b]" />
 
                   <h3 className="font-semibold text-white">Language</h3>
                 </div>
@@ -461,8 +565,8 @@ export default function MediaForm({ destination }) {
             {/* Submit */}
             <div className="flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-end">
               <button
-                type="reset"
-                onClick={() =>
+                type="button"
+                onClick={() => {
                   setFormData({
                     title: "",
                     poster: "",
@@ -470,10 +574,17 @@ export default function MediaForm({ destination }) {
                     releaseDate: "",
                     imdbRating: "",
                     runtime: "",
+                    seasons: "",
                     language: "",
                     country: "",
-                  })
-                }
+                    mediaType: "movie",
+                  });
+
+                  setGenres([]);
+                  setSelectedCategory("Movie");
+                  setCustomCategory("");
+                  setCustomGenre("");
+                }}
                 className="rounded-lg border border-white/15 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
               >
                 Reset Form
