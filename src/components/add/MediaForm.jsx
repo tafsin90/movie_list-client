@@ -4,6 +4,7 @@ import { useState } from "react";
 import TMDBSearch from "./TMDBSearch";
 import { SiSitepoint } from "react-icons/si";
 import { format } from "date-fns";
+import { authClient } from "@/lib/auth-client";
 
 const inputClass =
   "mt-2 w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#e5a84b]";
@@ -34,6 +35,8 @@ const defaultGenres = [
 
 export default function MediaForm({ destination }) {
   const [formData, setFormData] = useState({
+    userId: "",
+    user: "",
     title: "",
     poster: "",
     description: "",
@@ -53,10 +56,13 @@ export default function MediaForm({ destination }) {
   const [genres, setGenres] = useState([]);
   const [customGenre, setCustomGenre] = useState("");
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const { data: session, isPending } = authClient.useSession();
+  const userId = session?.user?.id;
 
   const handleMovieSelect = (movie) => {
     setFormData({
+      userId: userId,
+      user: session?.user?.name,
       title: movie.title || "",
       poster: movie.poster_path
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
@@ -128,68 +134,77 @@ export default function MediaForm({ destination }) {
     return `${hours} hour ${remainingMinutes} min`;
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const form = e.currentTarget;
-    const formData = new FormData(e.currentTarget);
-    const mediaData = Object.fromEntries(formData.entries());
+    if (isPending) {
+      alert("Please wait, session is loading!");
+      return;
+    }
 
-    mediaData.category = selectedCategory;
-    mediaData.genres = genres;
-    mediaData.status = destination;
+    if (!session?.user?.id) {
+      alert("Please login first!");
+      return;
+    }
 
-    console.log("Media Data:", mediaData);
+    try {
+      const submittedForm = new FormData(e.currentTarget);
+
+      const mediaData = Object.fromEntries(submittedForm.entries());
+
+      mediaData.userId = session.user.id;
+      mediaData.user = session.user.name;
+      mediaData.category = selectedCategory;
+      mediaData.genres = genres;
+      mediaData.status = destination;
+      mediaData.mediaType = formData.mediaType;
+
+      // console.log("========== MEDIA DATA ==========");
+      // console.log(mediaData);
+
+      const response = await fetch("http://localhost:5000/api/media", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(mediaData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add media");
+      }
+
+      // Clear form
+      e.target.reset();
+
+      setFormData({
+        userId: "",
+        user: "",
+        title: "",
+        poster: "",
+        description: "",
+        releaseDate: "",
+        imdbRating: "",
+        runtime: "",
+        seasons: "",
+        language: "",
+        country: "",
+        mediaType: "movie",
+      });
+
+      setSelectedCategory("Movie");
+      setGenres([]);
+      console.log("========== DATABASE RESPONSE ==========");
+      console.log(data);
+
+      // alert("Media added successfully!");
+    } catch (error) {
+      console.error("Submission failed:", error);
+      // alert(error.message);
+    }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   // try {
-  //   //   const mediaData = {
-  //   //     ...formData,
-  //   //     category: selectedCategory,
-  //   //     genres: genres,
-  //   //     status: destination,
-  //   //   };
-
-  //   //   const response = await fetch("http://localhost:5000/api/media", {
-  //   //     method: "POST",
-  //   //     headers: {
-  //   //       "Content-Type": "application/json",
-  //   //     },
-  //   //     body: JSON.stringify(mediaData),
-  //   //   });
-
-  //   //   const data = await response.json();
-
-  //   //   if (!response.ok) {
-  //   //     throw new Error(data.message || "Failed to add media");
-  //   //   }
-
-  //   //   alert("Media added successfully!");
-
-  //   //   setFormData({
-  //   //     title: "",
-  //   //     poster: "",
-  //   //     description: "",
-  //   //     releaseDate: "",
-  //   //     imdbRating: "",
-  //   //     runtime: "",
-  //   //     language: "",
-  //   //     country: "",
-  //   //     mediaType: "movie",
-  //   //   });
-
-  //   //   setGenres([]);
-  //   //   setSelectedCategory("Movie");
-  //   //   setCustomCategory("");
-  //   //   setCustomGenre("");
-  //   // } catch (error) {
-  //   //   console.error("Submission failed:", error);
-  //   //   alert(error.message);
-  //   // }
-  // };
 
   return (
     <div>
@@ -428,11 +443,7 @@ export default function MediaForm({ destination }) {
                   id="releaseDate"
                   name="releaseDate"
                   type="text"
-                  value={
-                    formData.releaseDate
-                      ? format(new Date(formData.releaseDate), "yyyy")
-                      : ""
-                  }
+                  value={formData.releaseDate}
                   onChange={(e) =>
                     setFormData({ ...formData, releaseDate: e.target.value })
                   }

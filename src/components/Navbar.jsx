@@ -19,14 +19,11 @@ import { authClient } from "@/lib/auth-client";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const {
-    data: session,
-    isPending, 
-  } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
-  // console.log(user);
+  // console.log(user  );
 
-  const handleLogout   = async () => {
+  const handleLogout = async () => {
     await authClient.signOut();
   };
 

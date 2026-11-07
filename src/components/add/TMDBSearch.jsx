@@ -38,7 +38,7 @@ export default function TMDBSearch({ onSelect }) {
   async function handleSelectMovie(movie) {
     setQuery(movie.title || movie.name);
     setMovies([]);
-    console.log(movie)
+    // console.log(movie)
 
     try {
       const response = await fetch(
