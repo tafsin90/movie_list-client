@@ -1,0 +1,23 @@
+<div className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#292016] via-[#1b1b1b] to-[#1b1b1b] p-6 transition-all duration-300 hover:border-[#e5a84b]/50">
+              <div className="mb-5 flex items-center justify-between">
+                <span className="text-3xl">🍿</span>
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#e5a84b]">
+                  Feeling Lucky?
+                </span>
+              </div>
+
+              <h2 className="text-xl font-semibold">
+                Surprise Me!
+                <span className="ml-2">✨</span>
+              </h2>
+
+              <p className="mt-2 text-sm leading-relaxed text-white/45">
+                Can't decide what to watch? Let fate choose your next movie,
+                series, or anime adventure.
+              </p>
+
+              <div className="mt-5 flex items-center gap-2 text-sm font-medium text-[#e5a84b] transition-transform duration-300 group-hover:translate-x-2">
+                Let&apos;s roll the dice
+                <span>→</span>
+              </div>
+            </div>
