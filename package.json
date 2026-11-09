@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@gravity-ui/icons": "^2.23.1",
+    "@tailwindcss/postcss": "^4.3.5",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",
