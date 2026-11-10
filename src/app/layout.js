@@ -13,7 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "FRAME | Your Personal Watchlist",
+  title: {
+    default: "FRAME",
+    template: "FRAME | %s ",
+  },
   description:
     "Keep track of the movies, series, and anime you want to watch.",
 };
