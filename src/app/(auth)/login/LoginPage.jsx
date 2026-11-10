@@ -10,6 +10,7 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
+import { Icon } from "@iconify/react";
 import { createAuthClient } from "better-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -38,12 +39,13 @@ const LoginPage = () => {
       // toast
     }
   };
-  const handelGoogle = async () => {
-    const authClient = createAuthClient();
-    const data = await authClient.signIn.social({
-      provider: "google",
-    });
-  };
+   const handelGoogle = async () => {
+      const authClient = createAuthClient();
+      const data = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream dark:bg-forest-dark">
@@ -143,6 +145,10 @@ const LoginPage = () => {
               Reset
             </Button>
           </div>
+          <Button className="w-full" variant="tertiary" onClick={handelGoogle}>
+                      <Icon icon="devicon:google" />
+                      Sign in with Google
+                    </Button>
           <div
             className="mt-2 text-center text-sm text-gray-600 dark:text-sage-light"
             onClick={handelGoogle}
