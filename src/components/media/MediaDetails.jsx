@@ -7,7 +7,7 @@ import { authClient } from "@/lib/auth-client";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import Image from "next/image";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 /* ---------- Rating ring (IMDb) ---------- */
 function RatingRing({ rating }) {

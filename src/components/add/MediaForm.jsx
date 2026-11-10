@@ -162,7 +162,7 @@ export default function MediaForm({ destination }) {
       // console.log("========== MEDIA DATA ==========");
       // console.log(mediaData);
 
-      const response = await fetch("http://localhost:5000/api/media", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/media`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

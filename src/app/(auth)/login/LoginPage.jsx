@@ -171,7 +171,6 @@ const LoginPage = () => {
 
             <div
               className="mt-2 text-center text-sm text-white/45"
-              onClick={handelGoogle}
             >
               Don't have an account?{" "}
               <Link

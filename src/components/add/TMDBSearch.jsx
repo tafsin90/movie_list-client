@@ -20,7 +20,7 @@ export default function TMDBSearch({ onSelect }) {
       setIsLoading(true);
 
       const response = await fetch(
-        `http://localhost:5000/api/media/search?query=${encodeURIComponent(value)}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/search?query=${encodeURIComponent(value)}`,
       );
 
       const data = await response.json();
@@ -42,7 +42,7 @@ export default function TMDBSearch({ onSelect }) {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/media/${movie.media_type}/${movie.id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/${movie.media_type}/${movie.id}`,
       );
 
       const data = await response.json();

@@ -17,7 +17,7 @@ import { Button, Avatar } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import UserAvatar from "./UserAvater";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 // Search Component
 function SearchBox({
@@ -29,7 +29,7 @@ function SearchBox({
   loading,
 }) {
   return (
-    <div className="relative w-full">
+    <div className="relative w-full ">
       <div className="flex items-center gap-2 rounded-full border border-[#e5a84b] bg-white/5 px-4 py-2 transition-colors focus-within:border-[#e5a84b]">
         <Magnifier className="h-4 w-4 shrink-0 text-white/50" />
 
@@ -174,7 +174,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#141414]/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-19 max-w-340 items-center justify-between">
+      <div className="mx-auto flex h-19 max-w-340 items-center justify-between px-3 md:px-0">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-1">
           <span className="text-3xl font-black tracking-[-2px] text-white">

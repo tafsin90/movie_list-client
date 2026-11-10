@@ -20,10 +20,10 @@ export default function Home() {
 
   async function fetchStats() {
     try {
-      console.log("User ID:", session.user.id);
+      // console.log("User ID:", session.user.id);
 
       const response = await fetch(
-        `http://localhost:5000/api/media/stats/${session.user.id}`
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/stats/${session.user.id}`
       );
 
       if (!response.ok) {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { SiSitepoint } from "react-icons/si";
 import { authClient } from "@/lib/auth-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 const inputClass =
   "mt-2 w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#e5a84b]";
