@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { SiSitepoint } from "react-icons/si";
 import { authClient } from "@/lib/auth-client";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const inputClass =
   "mt-2 w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#e5a84b]";
@@ -180,8 +178,7 @@ export default function EditMediaForm({ id }) {
     if (!value) return;
 
     const alreadyExists = categories.some(
-      (category) =>
-        category.toLowerCase() === value.toLowerCase(),
+      (category) => category.toLowerCase() === value.toLowerCase(),
     );
 
     if (!alreadyExists) {
@@ -246,16 +243,13 @@ export default function EditMediaForm({ id }) {
         status,
       };
 
-      const response = await fetch(
-        `${API_URL}/api/editmedia/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(mediaData),
+      const response = await fetch(`${API_URL}/api/editmedia/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(mediaData),
+      });
 
       const data = await response.json();
 
@@ -263,10 +257,7 @@ export default function EditMediaForm({ id }) {
         throw new Error(data.message || "Failed to update media.");
       }
 
-      router.push(
-        status === "finished" ? "/finished" : "/watchlist",
-      );
-
+      router.back();
       router.refresh();
     } catch (error) {
       console.error("Update failed:", error);
@@ -302,9 +293,7 @@ export default function EditMediaForm({ id }) {
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#1b1b1b]">
         {/* Form Header */}
         <div className="border-b border-white/10 px-6 py-5 md:px-8">
-          <h2 className="text-2xl font-semibold">
-            Edit Media
-          </h2>
+          <h2 className="text-2xl font-semibold">Edit Media</h2>
 
           <p className="mt-1 text-sm text-white/40">
             Update your media information and collection status.
@@ -349,10 +338,7 @@ export default function EditMediaForm({ id }) {
 
                       setFormData((previous) => ({
                         ...previous,
-                        mediaType:
-                          category === "Series"
-                            ? "tv"
-                            : "movie",
+                        mediaType: category === "Series" ? "tv" : "movie",
                       }));
                     }}
                     className={`rounded-full border px-4 py-2 text-xs font-medium transition ${
@@ -398,23 +384,21 @@ export default function EditMediaForm({ id }) {
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                {[...new Set([...defaultGenres, ...genres])].map(
-                  (genre) => (
-                    <button
-                      key={genre}
-                      type="button"
-                      onClick={() => toggleGenre(genre)}
-                      className={`rounded-full border px-3.5 py-2 text-xs transition ${
-                        genres.includes(genre)
-                          ? "border-[#e5a84b] bg-[#e5a84b]/10 text-[#e5a84b]"
-                          : "border-white/10 text-white/50 hover:border-white/30 hover:text-white"
-                      }`}
-                    >
-                      {genres.includes(genre) && "✓ "}
-                      {genre}
-                    </button>
-                  ),
-                )}
+                {[...new Set([...defaultGenres, ...genres])].map((genre) => (
+                  <button
+                    key={genre}
+                    type="button"
+                    onClick={() => toggleGenre(genre)}
+                    className={`rounded-full border px-3.5 py-2 text-xs transition ${
+                      genres.includes(genre)
+                        ? "border-[#e5a84b] bg-[#e5a84b]/10 text-[#e5a84b]"
+                        : "border-white/10 text-white/50 hover:border-white/30 hover:text-white"
+                    }`}
+                  >
+                    {genres.includes(genre) && "✓ "}
+                    {genre}
+                  </button>
+                ))}
               </div>
 
               {/* Custom Genres */}
@@ -500,9 +484,7 @@ export default function EditMediaForm({ id }) {
               <div>
                 <div className="flex items-center gap-2">
                   <SiSitepoint className="text-[#e5a84b]" />
-                  <h3 className="font-semibold text-white">
-                    Release Date
-                  </h3>
+                  <h3 className="font-semibold text-white">Release Date</h3>
                 </div>
 
                 <input
@@ -520,9 +502,7 @@ export default function EditMediaForm({ id }) {
               <div>
                 <div className="flex items-center gap-2">
                   <SiSitepoint className="text-[#e5a84b]" />
-                  <h3 className="font-semibold text-white">
-                    IMDb Rating
-                  </h3>
+                  <h3 className="font-semibold text-white">IMDb Rating</h3>
                 </div>
 
                 <input
@@ -564,9 +544,7 @@ export default function EditMediaForm({ id }) {
               <div>
                 <div className="flex items-center gap-2">
                   <SiSitepoint className="text-[#e5a84b]" />
-                  <h3 className="font-semibold text-white">
-                    Total Seasons
-                  </h3>
+                  <h3 className="font-semibold text-white">Total Seasons</h3>
                 </div>
 
                 <input
@@ -625,9 +603,7 @@ export default function EditMediaForm({ id }) {
             <section>
               <div className="flex items-center gap-2">
                 <SiSitepoint className="text-[#e5a84b]" />
-                <h3 className="font-semibold text-white">
-                  Collection Status
-                </h3>
+                <h3 className="font-semibold text-white">Collection Status</h3>
               </div>
 
               <select
@@ -641,9 +617,7 @@ export default function EditMediaForm({ id }) {
             </section>
 
             {/* Error */}
-            {error && (
-              <p className="text-sm text-red-400">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-400">{error}</p>}
 
             {/* Submit */}
             <div className="flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:justify-end">

@@ -1,9 +1,13 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { Magnifier } from "@gravity-ui/icons";
 import MediaTable from "@/components/media/MediaTable";
 import { authClient } from "@/lib/auth-client";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function MediaCollection({ status }) {
   const { data: session, isPending } = authClient.useSession();
@@ -28,13 +32,18 @@ export default function MediaCollection({ status }) {
         setLoading(true);
 
         const response = await fetch(
-          `http://localhost:5000/api/media/collection/${session.user.id}/${status}`,
+          `${API_URL}/api/media/collection/${session.user.id}/${status}`,
         );
 
         const data = await response.json();
 
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch media");
+        }
+
         setItems(data);
       } catch (error) {
+        console.error("Error fetching media:", error);
         setItems([]);
       } finally {
         setLoading(false);
@@ -44,6 +53,7 @@ export default function MediaCollection({ status }) {
     fetchMedia();
   }, [session, isPending, status]);
 
+  // Filtering and Sorting
   const filteredMovies = items
     .filter((movie) => {
       const matchesSearch = movie.title
@@ -77,6 +87,39 @@ export default function MediaCollection({ status }) {
 
   const isWatchlist = status === "watchlist";
 
+  // Delete Media
+  const handleDelete = async (mediaId) => {
+    if (!session?.user?.id) {
+      alert("Please log in first.");
+      return false;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/media/delete/${mediaId}/${session.user.id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete media");
+      }
+
+      setItems((prevItems) =>
+        prevItems.filter((item) => item._id !== mediaId),
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting media:", error);
+      alert(error.message);
+      return false;
+    }
+  };
+
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-[#141414] px-4 py-6 text-white sm:px-6 sm:py-8 lg:px-8">
       {/* Heading */}
@@ -97,14 +140,16 @@ export default function MediaCollection({ status }) {
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center gap-3">
+      <div className="mb-5 flex flex-col justify-between gap-3 md:flex-row md:items-center">
         {/* Collection Count */}
         <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#181818] px-4 py-3 sm:w-fit">
           <span className="text-lg font-semibold text-[#e5a84b]">
             {filteredMovies.length}
           </span>
 
-          <span className="text-sm text-white">Titles in your collection</span>
+          <span className="text-sm text-white">
+            Titles in your collection
+          </span>
         </div>
 
         {/* Search, Filter and Sorting */}
@@ -144,8 +189,11 @@ export default function MediaCollection({ status }) {
             className="min-w-0 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
           >
             <option value="recent">
-              {isWatchlist ? "Recently Added to Wishlist" : "Recently Watched"}
+              {isWatchlist
+                ? "Recently Added to Wishlist"
+                : "Recently Watched"}
             </option>
+
             <option value="title">Title: A-Z</option>
             <option value="rating">Highest IMDb Rating</option>
             <option value="newest">Newest Release</option>
@@ -159,7 +207,10 @@ export default function MediaCollection({ status }) {
           Loading your collection...
         </div>
       ) : (
-        <MediaTable items={filteredMovies} />
+        <MediaTable
+          items={filteredMovies}
+          onDelete={handleDelete}
+        />
       )}
     </main>
   );

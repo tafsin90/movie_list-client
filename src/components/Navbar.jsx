@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,11 +13,11 @@ import {
   CirclePlus,
 } from "@gravity-ui/icons";
 
-import { Button } from "@heroui/react";
+import { Button, Avatar } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
+import UserAvatar from "./UserAvater";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 // Search Component
 function SearchBox({
@@ -50,7 +49,6 @@ function SearchBox({
       {/* Search Results */}
       {searchOpen && search.trim() && (
         <div className="absolute left-0 top-full z-50 mt-2 max-h-96 w-full min-w-[280px] overflow-y-auto rounded-xl border border-white/10 bg-[#202020] p-2 shadow-2xl">
-
           {loading ? (
             <p className="px-3 py-4 text-center text-sm text-white/50">
               Loading your collection...
@@ -83,9 +81,7 @@ function SearchBox({
                     {item.title}
                   </p>
 
-                  <p className="mt-1 text-xs text-white/40">
-                    {item.category}
-                  </p>
+                  <p className="mt-1 text-xs text-white/40">{item.category}</p>
                 </div>
 
                 {/* Status */}
@@ -225,23 +221,27 @@ export default function Navbar() {
           <div className="h-7 w-px bg-white/15" />
 
           {/* Authentication Button */}
-          {!isPending &&
-            (user ? (
+          {user ? (
+            <div className="flex items-center gap-3">
+              <UserAvatar user={user} />
+              <span className="tracking-wider">{user.name?.toUpperCase()}</span>
+
               <Button
                 variant="outline"
-                className="border-white/20 bg-transparent px-5 text-sm text-white hover:border-[#e5a84b] hover:text-[#e5a84b]"
+                className="border-red-500 bg-transparent px-5 text-sm text-red-500 hover:border-red-600 hover:text-red-600"
                 onPress={handleLogout}
               >
                 Logout
               </Button>
-            ) : (
-              <Link
-                href="/login"
-                className="rounded-lg border border-white/20 bg-transparent px-5 py-2 text-sm text-white transition-colors hover:border-[#e5a84b] hover:text-[#e5a84b]"
-              >
-                Sign In
-              </Link>
-            ))}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-lg border border-white/20 bg-transparent px-5 py-2 text-sm text-white transition-colors hover:border-[#e5a84b] hover:text-[#e5a84b]"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -288,24 +288,33 @@ export default function Navbar() {
             />
 
             {/* Authentication Button */}
-            {!isPending &&
-              (user ? (
+            {user ? (
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <UserAvatar user={user} />
+
+                  <span className="truncate text-sm text-white">
+                    {user.name?.toUpperCase()}
+                  </span>
+                </div>
+
                 <Button
                   variant="outline"
-                  className="w-full border-white/20 bg-transparent text-white"
+                  className="border-white/20 bg-transparent text-white"
                   onPress={handleLogout}
                 >
                   Logout
                 </Button>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="w-full rounded-lg border border-white/20 bg-transparent py-2 text-center text-sm text-white"
-                >
-                  Sign In
-                </Link>
-              ))}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="w-full rounded-lg border border-white/20 bg-transparent py-2 text-center text-sm text-white"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
