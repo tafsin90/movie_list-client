@@ -1,4 +1,5 @@
 
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
 export default function MainLayout({ children }) {
@@ -8,6 +9,7 @@ export default function MainLayout({ children }) {
       <main className="w-full flex-1 py-5">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

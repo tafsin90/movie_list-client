@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -69,7 +68,10 @@ export default function MediaCollection({ status }) {
 
         case "recent":
         default:
-          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+          return (
+            new Date(b.statusChangedAt || b.createdAt || 0) -
+            new Date(a.statusChangedAt || a.createdAt || 0)
+          );
       }
     });
 
@@ -102,9 +104,7 @@ export default function MediaCollection({ status }) {
             {filteredMovies.length}
           </span>
 
-          <span className="text-sm text-white">
-            Titles in your collection
-          </span>
+          <span className="text-sm text-white">Titles in your collection</span>
         </div>
 
         {/* Search, Filter and Sorting */}
@@ -132,6 +132,9 @@ export default function MediaCollection({ status }) {
             <option value="Movie">Movies</option>
             <option value="Series">Series</option>
             <option value="Anime">Anime</option>
+            <option value="Animation">Animation</option>
+            <option value="Documentary">Documentary</option>
+            <option value="Short Film">Short Film</option>
           </select>
 
           {/* Sorting */}
@@ -140,7 +143,9 @@ export default function MediaCollection({ status }) {
             onChange={(e) => setSortBy(e.target.value)}
             className="min-w-0 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
           >
-            <option value="recent">Recently Added</option>
+            <option value="recent">
+              {isWatchlist ? "Recently Added to Wishlist" : "Recently Watched"}
+            </option>
             <option value="title">Title: A-Z</option>
             <option value="rating">Highest IMDb Rating</option>
             <option value="newest">Newest Release</option>

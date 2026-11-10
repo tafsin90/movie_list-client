@@ -61,8 +61,6 @@ const ArchiveToolbar = ({
             onChange={(e) => setSortBy(e.target.value)}
             className={`${selectClass} col-span-2 sm:col-span-1`}
           >
-            <option value="year">Release Year</option>
-            <option value="recent">Recently Added</option>
             <option value="title">Title: A-Z</option>
             <option value="rating">Highest Rating</option>
           </select>

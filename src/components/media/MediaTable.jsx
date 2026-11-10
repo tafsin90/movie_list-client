@@ -1,15 +1,16 @@
-
 "use client";
 
 import { Chip, Table } from "@heroui/react";
 import { Pencil, Eye } from "@gravity-ui/icons";
 import Image from "next/image";
+import Link from "next/link";
 
-const MediaTable = ({ items, onEdit, onDetails }) => {
+const MediaTable = ({ items, onDetails }) => {
   if (!items || items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 py-16 text-center">
         <p className="text-white/60">Your collection is empty.</p>
+
         <p className="mt-1 text-sm text-white/30">
           Add something to your collection to get started.
         </p>
@@ -82,14 +83,13 @@ const MediaTable = ({ items, onEdit, onDetails }) => {
 
             {/* Actions */}
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => onEdit?.(movie)}
+              <Link
+                href={`/edit/${movie._id || movie.id}`}
                 className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#292929] px-3 py-2.5 text-sm text-white/70 transition hover:border-[#e5a84b]/50 hover:text-[#e5a84b]"
               >
                 <Pencil className="h-4 w-4" />
                 Edit
-              </button>
+              </Link>
 
               <button
                 type="button"
@@ -214,23 +214,21 @@ const MediaTable = ({ items, onEdit, onDetails }) => {
                     {/* Action Buttons */}
                     <Table.Cell className="rounded-r-xl border-0 !bg-[#202020] px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => onEdit?.(movie)}
+                        <Link
+                          href={`/edit/${movie._id || movie.id}`}
                           className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#292929] px-3 py-2 text-sm text-white/70 transition hover:border-[#e5a84b]/50 hover:text-[#e5a84b]"
                         >
                           <Pencil className="h-4 w-4" />
                           Edit
-                        </button>
+                        </Link>
 
-                        <button
-                          type="button"
-                          onClick={() => onDetails?.(movie)}
+                        <Link
+                          href={`/details/${movie._id || movie.id}`}
                           className="flex items-center gap-2 rounded-lg bg-[#e5a84b] px-3 py-2 text-sm font-medium text-black transition hover:bg-[#f0bd68]"
                         >
                           <Eye className="h-4 w-4" />
                           Details
-                        </button>
+                         </Link>
                       </div>
                     </Table.Cell>
                   </Table.Row>

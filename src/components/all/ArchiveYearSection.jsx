@@ -15,7 +15,7 @@ const ArchiveYearSection = ({ year, items }) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 2xl:grid-cols-12">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-10 2xl:grid-cols-12">
         {items.map((item) => (
           <ArchivePoster
             key={item._id}
