@@ -82,7 +82,7 @@ console.log("API Data:", data);
           {/* ACTION BUTTONS */}
           <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-7">
             <Link
-              href="/watchlist"
+              href="/all"
               className="group flex items-center gap-3 rounded-lg bg-[#D9A451] px-5 py-3.5 text-xs font-semibold text-[#171411] transition duration-200 hover:bg-[#EABD77] sm:px-6 sm:text-sm"
             >
               Explore your collection
