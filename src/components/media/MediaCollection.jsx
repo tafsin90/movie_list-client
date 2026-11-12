@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -13,9 +12,28 @@ export default function MediaCollection({ status }) {
 
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedType, setSelectedType] = useState("All");
   const [sortBy, setSortBy] = useState("recent");
   const [loading, setLoading] = useState(true);
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [jumpPage, setJumpPage] = useState("1");
+
+  // Search Debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setJumpPage(String(page));
+  }, [page]);
 
   useEffect(() => {
     if (isPending) return;
@@ -30,8 +48,16 @@ export default function MediaCollection({ status }) {
       try {
         setLoading(true);
 
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: "50",
+          search: debouncedSearch,
+          category: selectedType,
+          sort: sortBy,
+        });
+
         const response = await fetch(
-          `${API_URL}/api/media/collection/${session.user.id}/${status}`,
+          `${API_URL}/api/media/collection/${session.user.id}/${status}?${params}`,
         );
 
         const data = await response.json();
@@ -40,49 +66,29 @@ export default function MediaCollection({ status }) {
           throw new Error(data.message || "Failed to fetch media");
         }
 
-        setItems(data);
+        setItems(data.items || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalItems(data.pagination?.totalItems || 0);
       } catch (error) {
         console.error("Error fetching media:", error);
         setItems([]);
+        setTotalPages(1);
+        setTotalItems(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchMedia();
-  }, [session, isPending, status]);
-
-  // Filtering and Sorting
-  const filteredMovies = items
-    .filter((movie) => {
-      const matchesSearch = movie.title
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
-
-      const matchesType =
-        selectedType === "All" || movie.category === selectedType;
-
-      return matchesSearch && matchesType;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "title":
-          return a.title.localeCompare(b.title);
-
-        case "rating":
-          return Number(b.imdbRating || 0) - Number(a.imdbRating || 0);
-
-        case "newest":
-          return new Date(b.releaseDate || 0) - new Date(a.releaseDate || 0);
-
-        case "recent":
-        default:
-          return (
-            new Date(b.statusChangedAt || b.createdAt || 0) -
-            new Date(a.statusChangedAt || a.createdAt || 0)
-          );
-      }
-    });
+  }, [
+    session?.user?.id,
+    isPending,
+    status,
+    page,
+    debouncedSearch,
+    selectedType,
+    sortBy,
+  ]);
 
   const isWatchlist = status === "watchlist";
 
@@ -107,9 +113,13 @@ export default function MediaCollection({ status }) {
         throw new Error(data.message || "Failed to delete media");
       }
 
-      setItems((prevItems) =>
-        prevItems.filter((item) => item._id !== mediaId),
-      );
+      setItems((prevItems) => prevItems.filter((item) => item._id !== mediaId));
+
+      setTotalItems((prevTotal) => Math.max(0, prevTotal - 1));
+
+      if (items.length === 1 && page > 1) {
+        setPage((prevPage) => prevPage - 1);
+      }
 
       return true;
     } catch (error) {
@@ -119,6 +129,19 @@ export default function MediaCollection({ status }) {
     }
   };
 
+  const handleJump = () => {
+    const targetPage = Number(jumpPage);
+
+    if (
+      !Number.isInteger(targetPage) ||
+      targetPage < 1 ||
+      targetPage > totalPages
+    ) {
+      return;
+    }
+
+    setPage(targetPage);
+  };
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-[#141414] px-4 py-6 text-white sm:px-6 sm:py-8 lg:px-8">
       {/* Heading */}
@@ -143,12 +166,10 @@ export default function MediaCollection({ status }) {
         {/* Collection Count */}
         <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#181818] px-4 py-3 sm:w-fit">
           <span className="text-lg font-semibold text-[#e5a84b]">
-            {filteredMovies.length}
+            {totalItems}
           </span>
 
-          <span className="text-sm text-white">
-            Titles in your collection
-          </span>
+          <span className="text-sm text-white">Titles in your collection</span>
         </div>
 
         {/* Search, Filter and Sorting */}
@@ -161,7 +182,10 @@ export default function MediaCollection({ status }) {
               type="text"
               placeholder="Search titles..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
             />
           </div>
@@ -169,7 +193,10 @@ export default function MediaCollection({ status }) {
           {/* Filter */}
           <select
             value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
+            onChange={(e) => {
+              setSelectedType(e.target.value);
+              setPage(1);
+            }}
             className="min-w-0 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
           >
             <option value="All">All Types</option>
@@ -184,13 +211,14 @@ export default function MediaCollection({ status }) {
           {/* Sorting */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(1);
+            }}
             className="min-w-0 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
           >
             <option value="recent">
-              {isWatchlist
-                ? "Recently Added to Wishlist"
-                : "Recently Watched"}
+              {isWatchlist ? "Recently Added to Wishlist" : "Recently Watched"}
             </option>
 
             <option value="title">Title: A-Z</option>
@@ -206,11 +234,80 @@ export default function MediaCollection({ status }) {
           Loading your collection...
         </div>
       ) : (
-        <MediaTable
-          items={filteredMovies}
-          onDelete={handleDelete}
-        />
+        <MediaTable items={items} onDelete={handleDelete} />
       )}
+
+      <div className="mt-8 flex flex-col gap-4 rounded-xl border border-white/[0.07] bg-[#181818] p-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Jump to Page */}
+        <div className="flex items-center justify-between gap-3 border-t border-white/[0.07] pt-3 sm:justify-end sm:border-t-0 sm:pt-0">
+          <label
+            htmlFor="jump-page"
+            className="text-xs font-semibold tracking-wider text-white/40"
+          >
+            GO TO PAGE
+          </label>
+
+          <div className="flex items-center gap-2">
+            <input
+              id="jump-page"
+              type="number"
+              min="1"
+              max={totalPages}
+              value={jumpPage}
+              onChange={(e) => setJumpPage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleJump();
+                }
+              }}
+              disabled={loading || totalPages <= 1}
+              className="w-16 rounded-lg border border-white/10 bg-[#222222] px-2 py-2.5 text-center text-sm text-white outline-none transition focus:border-[#e5a84b] disabled:opacity-40"
+            />
+
+            <button
+              type="button"
+              onClick={handleJump}
+              disabled={loading || totalPages <= 1}
+              className="rounded-lg bg-[#e5a84b] px-4 py-2.5 text-xs font-bold tracking-wider text-[#141414] transition hover:bg-[#f0bd68] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              GO
+            </button>
+          </div>
+        </div>
+
+        {/* Previous / Next */}
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            disabled={page === 1 || loading}
+            onClick={() => setPage((prevPage) => prevPage - 1)}
+            className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#222222] px-3 py-2.5 text-sm text-white/70 transition hover:border-[#e5a84b]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <span>←</span>
+            Previous
+          </button>
+
+          <div className="flex items-center gap-2 text-sm">
+            <span className="flex h-8 min-w-8 items-center justify-center rounded-md bg-[#e5a84b] px-2 font-semibold text-[#141414]">
+              {page}
+            </span>
+
+            <span className="text-white/30">of</span>
+
+            <span className="font-medium text-white/60">{totalPages}</span>
+          </div>
+
+          <button
+            type="button"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((prevPage) => prevPage + 1)}
+            className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#222222] px-3 py-2.5 text-sm text-white/70 transition hover:border-[#e5a84b]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            Next
+            <span>→</span>
+          </button>
+        </div>
+      </div>
     </main>
   );
 }

@@ -13,7 +13,7 @@ import {
   CirclePlus,
 } from "@gravity-ui/icons";
 
-import { Button, Avatar } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import UserAvatar from "./UserAvater";
 
@@ -115,55 +115,78 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
-  // Fetch all user media
+
   useEffect(() => {
-    if (isPending) return;
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search.trim());
+  }, 300);
 
-    if (!user?.id) {
-      setAllMedia([]);
-      return;
-    }
+  return () => clearTimeout(timer);
+}, [search]);
 
-    const fetchAllMedia = async () => {
-      try {
-        setLoading(true);
+  useEffect(() => {
+  if (isPending) return;
 
-        const response = await fetch(
-          `${API_URL}/api/allmedia/collection/${user.id}`,
-        );
+  if (!user?.id || !debouncedSearch) {
+    setAllMedia([]);
+    setLoading(false);
+    return;
+  }
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch media");
-        }
+  const controller = new AbortController();
 
-        const data = await response.json();
+  const fetchAllMedia = async () => {
+    try {
+      setLoading(true);
 
-        setAllMedia(data);
-      } catch (error) {
+      const params = new URLSearchParams({
+        userId: user.id,
+        search: debouncedSearch,
+      });
+
+      const response = await fetch(
+        `${API_URL}/api/media/search-collection?${params}`,
+        { signal: controller.signal },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch media");
+      }
+
+      const data = await response.json();
+
+      setAllMedia(data);
+    } catch (error) {
+      if (error.name !== "AbortError") {
         console.error("Error fetching media:", error);
         setAllMedia([]);
-      } finally {
+      }
+    } finally {
+      if (!controller.signal.aborted) {
         setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchAllMedia();
-  }, [user?.id, isPending]);
+  fetchAllMedia();
+
+  return () => controller.abort();
+}, [user?.id, isPending, debouncedSearch]);
 
   // Filter search results
-  const searchResults = allMedia
-    .filter((item) =>
-      item.title?.toLowerCase().includes(search.trim().toLowerCase()),
-    )
-    .slice(0, 8);
+  const searchResults =
+  search.trim() === debouncedSearch ? allMedia : [];
 
   const handleLogout = async () => {
-    await authClient.signOut();
-    setAllMedia([]);
-  };
+  await authClient.signOut();
+  setAllMedia([]);
+  setIsMenuOpen(false);
+};
 
   const navLinks = [
     { name: "Home", href: "/", icon: <House /> },

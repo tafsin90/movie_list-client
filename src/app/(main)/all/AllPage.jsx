@@ -25,18 +25,22 @@ export default function AllPage() {
   const [activeDecade, setActiveDecade] = useState(null);
 
   // Fetch all media from MongoDB
-  useEffect(() => {
-    if (!session?.user?.id) {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
+  const userId = session?.user?.id;
+
+useEffect(() => {
+  if (isPending) return;
+
+  if (!userId) {
+    setItems([]);
+    setLoading(false);
+    return;
+  }
 
     const fetchMedia = async () => {
       try {
         setLoading(true);
 
-        const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/allmedia/collection/${session.user.id}`;
+        const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/allmedia/collection/${userId}`;
 
         // console.log("Logged-in user ID:", session.user.id);
 
@@ -59,42 +63,44 @@ export default function AllPage() {
     };
 
     fetchMedia();
-  }, [session]);
+  }, [ isPending, userId]);
 
   // Search, filter and sort
-  const filteredItems = items
-    .filter((item) => {
-      const matchesSearch = item.title
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
+  const filteredItems = useMemo(() => {
+    return items
+      .filter((item) => {
+        const matchesSearch = item.title
+          ?.toLowerCase()
+          .includes(search.toLowerCase());
 
-      const matchesType =
-        selectedType === "All" || item.category === selectedType;
+        const matchesType =
+          selectedType === "All" || item.category === selectedType;
 
-      const matchesStatus =
-        selectedStatus === "All" || item.status === selectedStatus;
+        const matchesStatus =
+          selectedStatus === "All" || item.status === selectedStatus;
 
-      return matchesSearch && matchesType && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "title":
-          return a.title.localeCompare(b.title);
+        return matchesSearch && matchesType && matchesStatus;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "title":
+            return (a.title || "").localeCompare(b.title || "");
 
-        case "rating":
-          return Number(b.imdbRating || 0) - Number(a.imdbRating || 0);
+          case "rating":
+            return Number(b.imdbRating || 0) - Number(a.imdbRating || 0);
 
-        case "recent":
-          return new Date(b.createdAt) - new Date(a.createdAt);
+          case "recent":
+            return new Date(b.createdAt) - new Date(a.createdAt);
 
-        case "year":
-        default:
-          return (
-            Number.parseInt(b.releaseDate, 10) -
-            Number.parseInt(a.releaseDate, 10)
-          );
-      }
-    });
+          case "year":
+          default:
+            return (
+  (Number.parseInt(b.releaseDate, 10) || 0) -
+  (Number.parseInt(a.releaseDate, 10) || 0)
+);
+        }
+      });
+  }, [items, search, selectedType, selectedStatus, sortBy]);
 
   // Group media by decade and year
   const groupedArchive = useMemo(() => {

@@ -17,48 +17,54 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-  if (!session?.user?.id) return;
+    if (isPending) return;
 
-  async function fetchStats() {
-    try {
-      // console.log("User ID:", session.user.id);
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/stats/${session.user.id}`
-      );
-
-      if (!response.ok) {
-  const errorData = await response.text();
-
-  console.log("Status:", response.status);
-  console.log("Backend error:", errorData);
-
-  return;
-}
-
-      const data = await response.json();
-
-      console.log("API Status:", response.status);
-console.log("API Data:", data);
-
-      setStats(data);
-    } catch (error) {
-      console.error(error);
+    if (!session?.user?.id) {
+      setStats({
+        watchlist: 0,
+        finished: 0,
+        favourites: 0,
+      });
+      return;
     }
-  }
+    async function fetchStats() {
+      try {
+        // console.log("User ID:", session.user.id);
 
-  fetchStats();
-}, [session?.user?.id]);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/stats/${session.user.id}`,
+        );
+
+        if (!response.ok) {
+          // console.log("Status:", response.status);
+          // console.log("Backend error:", errorData);
+
+          return;
+        }
+
+        const data = await response.json();
+
+        // console.log("API Status:", response.status);
+        // console.log("API Data:", data);
+
+        setStats(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchStats();
+  }, [session?.user?.id, isPending]);
   const statistics = [
-  {
-    number: String(stats.watchlist).padStart(4, "0"),
-    label: "On my watchlist",
-  },
-  {
-    number: String(stats.finished).padStart(4, "0"),
-    label: "Already watched",
-  },
-];
+    {
+      number: String(stats.watchlist).padStart(4, "0"),
+      label: "On my watchlist",
+    },
+    {
+      number: String(stats.finished).padStart(4, "0"),
+      label: "Already watched",
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#141414] px-4 pb-10 pt-7 text-[#F0E8DA] sm:px-6 sm:pt-8 md:px-10 md:pt-10">
@@ -185,7 +191,7 @@ console.log("API Data:", data);
                 </h3>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {statistics.map((stat) => (
                   <div
                     key={stat.label}

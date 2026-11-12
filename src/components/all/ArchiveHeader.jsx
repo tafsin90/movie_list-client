@@ -9,8 +9,12 @@ const ArchiveHeader = ({ items }) => {
   const animation = items.filter(
     (item) => item.category === "Animation",
   ).length;
-  const shortFilm = items.filter((item) => item.category === "Short Film").length;
-  const documentary = items.filter((item) => item.category === "Documentary").length;
+  const shortFilm = items.filter(
+    (item) => item.category === "Short Film",
+  ).length;
+  const documentary = items.filter(
+    (item) => item.category === "Documentary",
+  ).length;
 
   return (
     <section className="mb-10">
