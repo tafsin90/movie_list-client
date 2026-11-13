@@ -22,7 +22,6 @@ const defaultCategories = [
 const defaultGenres = [
   "Action",
   "Adventure",
-  "Animation",
   "Comedy",
   "Crime",
   "Drama",
@@ -32,6 +31,13 @@ const defaultGenres = [
   "Romance",
   "Sci-Fi",
   "Thriller",
+  "Rom-Com",
+  "Western",
+  "Dark Comedy",
+  "Sports & Game",
+  "Psychological Thriller",
+  "Historical Fiction",
+  "Biography",
 ];
 
 export default function EditMediaForm({ id }) {
