@@ -193,6 +193,7 @@ export default function Navbar() {
     { name: "Watchlist", href: "/watchlist", icon: <Bookmark /> },
     { name: "Finished", href: "/finished", icon: <CircleCheckFill /> },
     { name: "Add", href: "/add", icon: <CirclePlus /> },
+    { name: "Franchises", href: "/franchises", icon: <CirclePlus /> },
   ];
 
   return (
