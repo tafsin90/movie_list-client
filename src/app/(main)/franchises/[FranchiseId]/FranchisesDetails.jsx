@@ -57,7 +57,6 @@ export default function FranchiseDetails() {
     if (!userId || !franchiseId) return;
 
     try {
-      setLoading(true);
       setError("");
 
       const response = await fetch(
@@ -117,6 +116,7 @@ export default function FranchiseDetails() {
       return;
     }
 
+    setLoading(true);
     fetchFranchise();
   }, [isPending, userId, franchiseId, fetchFranchise]);
 
@@ -232,8 +232,11 @@ export default function FranchiseDetails() {
       }
 
       setDeletingMedia(null);
-
-      await fetchFranchise();
+      setItems((previousItems) =>
+        previousItems.filter(
+          (item) => item.media?._id !== deletingMedia._id,
+        ),
+      );
     } catch (error) {
       alert(error.message);
     }
@@ -332,7 +335,13 @@ export default function FranchiseDetails() {
 
         <p className="mb-5 text-red-400">{error}</p>
 
-        <button onClick={fetchFranchise} className="mr-4 text-[#e5a84b]">
+        <button
+          onClick={() => {
+            setLoading(true);
+            fetchFranchise();
+          }}
+          className="mr-4 text-[#e5a84b]"
+        >
           Try Again
         </button>
 
@@ -664,9 +673,30 @@ export default function FranchiseDetails() {
             .filter((item) => item.media)
             .map((item) => item.media._id)}
           onClose={() => setShowAddMedia(false)}
-          onAdded={async () => {
+          onAdded={(addedMedia) => {
             setShowAddMedia(false);
-            await fetchFranchise();
+            setItems((previousItems) => {
+              const lastOrder = previousItems.reduce(
+                (maxOrder, item) => Math.max(maxOrder, item.order || 0),
+                0,
+              );
+              const updatedItems = [
+                ...previousItems,
+                ...addedMedia.map((media, index) => ({
+                  media,
+                  order: lastOrder + index + 1,
+                })),
+              ];
+
+              return sortMode === "release"
+                ? updatedItems.sort((a, b) => {
+                    const dateA = a.media?.releaseDate || "9999-99-99";
+                    const dateB = b.media?.releaseDate || "9999-99-99";
+
+                    return dateA.localeCompare(dateB);
+                  })
+                : updatedItems;
+            });
           }}
         />
       )}

@@ -38,27 +38,30 @@ export default function AddFranchiseMedia({
         setMedia([]);
         setSelected([]);
 
-        let allMedia = [];
-        let currentPage = 1;
-        let totalPages = 1;
-
-        // Fetch all pages for the selected status.
-        do {
+        const fetchPage = async (page) => {
           const response = await fetch(
-            `${API}/api/media/collection/${encodeURIComponent(userId)}/${status}?page=${currentPage}&limit=50`,
+            `${API}/api/media/collection/${encodeURIComponent(userId)}/${status}?page=${page}&limit=100`,
           );
-
           const data = await response.json();
 
           if (!response.ok) {
             throw new Error(data.message || "Failed to fetch media");
           }
 
-          allMedia = [...allMedia, ...(data.items || [])];
+          return data;
+        };
 
-          totalPages = data.pagination?.totalPages || 1;
-          currentPage++;
-        } while (currentPage <= totalPages);
+        const firstPage = await fetchPage(1);
+        const remainingPages = await Promise.all(
+          Array.from(
+            { length: Math.max(0, (firstPage.pagination?.totalPages || 1) - 1) },
+            (_, index) => fetchPage(index + 2),
+          ),
+        );
+        const allMedia = [
+          ...(firstPage.items || []),
+          ...remainingPages.flatMap((page) => page.items || []),
+        ];
 
         if (!cancelled) {
           setMedia(allMedia);
@@ -113,6 +116,7 @@ export default function AddFranchiseMedia({
     let addedCount = 0;
     let failedCount = 0;
     let errorMessage = "";
+    const addedMediaIds = [];
 
     try {
       for (const mediaId of selected) {
@@ -138,6 +142,7 @@ export default function AddFranchiseMedia({
           }
 
           addedCount++;
+          addedMediaIds.push(mediaId);
         } catch (error) {
           failedCount++;
 
@@ -148,7 +153,11 @@ export default function AddFranchiseMedia({
       }
 
       if (addedCount > 0) {
-        await onAdded();
+        await onAdded(
+          addedMediaIds
+            .map((mediaId) => media.find((item) => item._id === mediaId))
+            .filter(Boolean),
+        );
       }
 
       if (failedCount === 0) {

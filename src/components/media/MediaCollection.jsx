@@ -50,7 +50,7 @@ export default function MediaCollection({ status }) {
 
         const params = new URLSearchParams({
           page: String(page),
-          limit: "50",
+          limit: "100",
           search: debouncedSearch,
           category: selectedType,
           sort: sortBy,
