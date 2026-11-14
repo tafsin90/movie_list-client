@@ -321,9 +321,7 @@ export default function FranchiseDetails() {
 
   // LOADING
   if (loading) {
-    return (
-      <FranchiseLoading />
-    );
+    return <FranchiseLoading />;
   }
 
   // ERROR
@@ -400,7 +398,7 @@ export default function FranchiseDetails() {
         {/* FRANCHISE HEADER */}
 
         <div className="mb-8 flex flex-col gap-5 sm:gap-6 md:flex-row">
-          <div className="h-56 w-36 shrink-0 overflow-hidden rounded-xl bg-[#252525] sm:h-64 sm:w-44">
+          <div className="relative h-56 w-36 shrink-0 overflow-hidden rounded-xl bg-[#252525] sm:h-64 sm:w-44">
             {franchise.poster ? (
               <Image
                 src={franchise.poster}
@@ -574,17 +572,22 @@ export default function FranchiseDetails() {
 
                     {/* POSTER */}
 
-                    <Image
-                      src={media.poster}
-                      alt={media.title}
-                      width={64}
-                      height={96}
-                      className="h-16 w-11 shrink-0 rounded-lg object-cover sm:h-24 sm:w-16"
-                    />
+                    <Link href={`/details/${media._id}`}>
+                      <Image
+                        src={media.poster}
+                        alt={media.title}
+                        width={64}
+                        height={96}
+                        className="h-16 w-11 shrink-0 rounded-lg object-cover sm:h-24 sm:w-16"
+                      />
+                    </Link>
 
                     {/* DETAILS */}
 
-                    <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/details/${media._id}`}
+                      className="min-w-0 flex-1"
+                    >
                       <h3 className="truncate text-sm font-semibold text-white sm:text-base">
                         {media.title}
                       </h3>
@@ -593,13 +596,9 @@ export default function FranchiseDetails() {
                         <span>
                           {media.releaseDate?.slice(0, 4) || "Unknown year"}
                         </span>
-
                         <span>·</span>
-
                         <span>{media.category}</span>
-
                         <span>·</span>
-
                         <span>{media.mediaType}</span>
                       </div>
 
@@ -612,7 +611,7 @@ export default function FranchiseDetails() {
                       >
                         {media.status}
                       </span>
-                    </div>
+                    </Link>
 
                     {/* ORDER CONTROLS */}
 
