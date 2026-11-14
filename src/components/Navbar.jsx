@@ -17,6 +17,7 @@ import { FiLayers } from "react-icons/fi";
 import { Button } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import UserAvatar from "./UserAvater";
+import { IoStatsChart } from "react-icons/io5";
 
 const API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -195,6 +196,8 @@ export default function Navbar() {
     { name: "Finished", href: "/finished", icon: <CircleCheckFill /> },
     { name: "Add", href: "/add", icon: <CirclePlus /> },
     { name: "Franchises", href: "/franchises", icon: <FiLayers /> },
+    { name: "Statistics", href: "/statistics", icon: <IoStatsChart />
+ },
   ];
 
   return (
