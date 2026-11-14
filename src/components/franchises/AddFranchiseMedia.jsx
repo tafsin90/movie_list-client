@@ -1,8 +1,8 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
+import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -51,9 +51,7 @@ export default function AddFranchiseMedia({
           const data = await response.json();
 
           if (!response.ok) {
-            throw new Error(
-              data.message || "Failed to fetch media",
-            );
+            throw new Error(data.message || "Failed to fetch media");
           }
 
           allMedia = [...allMedia, ...(data.items || [])];
@@ -91,9 +89,7 @@ export default function AddFranchiseMedia({
       ?.toLowerCase()
       .includes(search.toLowerCase());
 
-    const notAdded = !existingMediaIds.includes(
-      item._id,
-    );
+    const notAdded = !existingMediaIds.includes(item._id);
 
     return matchesSearch && notAdded;
   });
@@ -138,9 +134,7 @@ export default function AddFranchiseMedia({
           const data = await response.json();
 
           if (!response.ok) {
-            throw new Error(
-              data.message || "Failed to add media",
-            );
+            throw new Error(data.message || "Failed to add media");
           }
 
           addedCount++;
@@ -178,14 +172,11 @@ export default function AddFranchiseMedia({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <div className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-white/10 bg-[#202020]">
-
         {/* HEADER */}
 
         <div className="flex items-center justify-between border-b border-white/10 p-5">
           <div>
-            <h2 className="text-xl font-semibold text-white">
-              Add Media
-            </h2>
+            <h2 className="text-xl font-semibold text-white">Add Media</h2>
 
             <p className="mt-1 text-xs text-white/40">
               Select movies and series from your collections.
@@ -204,7 +195,6 @@ export default function AddFranchiseMedia({
         {/* CONTENT */}
 
         <div className="space-y-4 p-5">
-
           {/* STATUS TABS */}
 
           <div className="flex gap-3">
@@ -246,16 +236,13 @@ export default function AddFranchiseMedia({
           {/* MEDIA LIST */}
 
           <div className="max-h-[40vh] space-y-2 overflow-y-auto">
-
             {loading ? (
               <p className="py-10 text-center text-white/50">
                 Loading {status}...
               </p>
             ) : error ? (
               <div className="py-10 text-center">
-                <p className="text-sm text-red-400">
-                  {error}
-                </p>
+                <p className="text-sm text-red-400">{error}</p>
               </div>
             ) : filteredMedia.length === 0 ? (
               <p className="py-10 text-center text-white/50">
@@ -275,9 +262,11 @@ export default function AddFranchiseMedia({
                       : "border-white/5 bg-white/[0.03] hover:bg-white/[0.07]"
                   }`}
                 >
-                  <img
+                  <Image
                     src={item.poster || "/images/placeholder.png"}
                     alt={item.title}
+                    width={44}
+                    height={64}
                     className="h-16 w-11 rounded object-cover"
                   />
 
@@ -299,23 +288,16 @@ export default function AddFranchiseMedia({
                 </button>
               ))
             )}
-
           </div>
         </div>
 
         {/* FOOTER */}
 
         <div className="flex items-center justify-between border-t border-white/10 p-5">
-          <p className="text-sm text-white/50">
-            {selected.length} selected
-          </p>
+          <p className="text-sm text-white/50">{selected.length} selected</p>
 
           <div className="flex gap-3">
-            <Button
-              variant="light"
-              onPress={onClose}
-              isDisabled={adding}
-            >
+            <Button variant="light" onPress={onClose} isDisabled={adding}>
               Cancel
             </Button>
 
@@ -329,7 +311,6 @@ export default function AddFranchiseMedia({
             </Button>
           </div>
         </div>
-
       </div>
     </div>
   );

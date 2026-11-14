@@ -1,22 +1,22 @@
 
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
+import { MdCancel } from "react-icons/md";
 
-export default function FranchiseForm({
-  franchise,
-  onClose,
-  onSubmit,
-}) {
+export default function FranchiseForm({ franchise, onClose, onSubmit }) {
   const [name, setName] = useState("");
   const [poster, setPoster] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const [posterError, setPosterError] = useState(false);
 
   useEffect(() => {
     setName(franchise?.name || "");
     setPoster(franchise?.poster || "");
     setDescription(franchise?.description || "");
+    setPosterError(false);
   }, [franchise]);
 
   const handleSubmit = async (e) => {
@@ -56,14 +56,14 @@ export default function FranchiseForm({
           <button
             type="button"
             onClick={onClose}
-            className="text-2xl text-white/50"
+            className="text-2xl text-white/50 transition-all duration-300 hover:cursor-pointer hover:text-red-500"
           >
-            ×
+            <MdCancel />
           </button>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-white/70">
+          <label className="mb-2 block text-sm text-white/90">
             Franchise Name
           </label>
 
@@ -71,37 +71,51 @@ export default function FranchiseForm({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Marvel, Fast & Furious..."
+            placeholder="MCU, Fast & Furious..."
             className="w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-3 text-white outline-none focus:border-[#e5a84b]"
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-white/70">
+          <label className="mb-2 block text-sm text-white/90">
             Poster URL
           </label>
 
           <input
             value={poster}
-            onChange={(e) => setPoster(e.target.value)}
+            onChange={(e) => {
+              setPoster(e.target.value);
+              setPosterError(false);
+            }}
             placeholder="https://example.com/poster.jpg"
             className="w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-3 text-white outline-none focus:border-[#e5a84b]"
           />
         </div>
 
-        {poster && (
-          <img
-            src={poster}
-            alt="Poster preview"
-            className="h-40 w-28 rounded-lg object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
-        )}
+        <div className="flex justify-center">
+          {poster.trim() &&
+          !posterError &&
+          (poster.trim().startsWith("https://") ||
+            poster.trim().startsWith("http://") ||
+            poster.trim().startsWith("/")) ? (
+            <Image
+              src={poster.trim()}
+              alt="Poster preview"
+              className="h-40 w-28 rounded-lg object-cover"
+              width={112}
+              height={160}
+              onError={() => setPosterError(true)}
+            />
+          ) : (
+            <div className="flex h-40 w-28 flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#141414] text-white/30">
+              <span className="text-3xl">🎬</span>
+              <span className="text-xs">No Poster</span>
+            </div>
+          )}
+        </div>
 
         <div>
-          <label className="mb-2 block text-sm text-white/70">
+          <label className="mb-2 block text-sm text-white/90">
             Description
           </label>
 
@@ -118,7 +132,7 @@ export default function FranchiseForm({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-4 py-2 text-white/60 hover:bg-white/5"
+            className="rounded-lg px-4 py-2 text-white/60 hover:cursor-pointer hover:bg-white/5"
           >
             Cancel
           </button>
@@ -126,7 +140,7 @@ export default function FranchiseForm({
           <button
             type="submit"
             disabled={loading}
-            className="rounded-lg bg-[#e5a84b] px-5 py-2 font-semibold text-black disabled:opacity-50"
+            className="rounded-lg bg-[#e5a84b] px-5 py-2 font-semibold text-black hover:cursor-pointer disabled:opacity-50"
           >
             {loading
               ? "Saving..."

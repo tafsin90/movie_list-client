@@ -12,6 +12,7 @@ import {
   House,
   CirclePlus,
 } from "@gravity-ui/icons";
+import { FiLayers } from "react-icons/fi";
 
 import { Button } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
@@ -193,7 +194,7 @@ export default function Navbar() {
     { name: "Watchlist", href: "/watchlist", icon: <Bookmark /> },
     { name: "Finished", href: "/finished", icon: <CircleCheckFill /> },
     { name: "Add", href: "/add", icon: <CirclePlus /> },
-    { name: "Franchises", href: "/franchises", icon: <CirclePlus /> },
+    { name: "Franchises", href: "/franchises", icon: <FiLayers /> },
   ];
 
   return (
