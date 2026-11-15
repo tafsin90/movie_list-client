@@ -18,5 +18,5 @@ export async function proxy(request) {
 // export default function proxy(request) { ... }
  
 export const config = {
-  matcher: ['/watchlist','/finished','/add','/all','/details/:id*','/edit/:id*', '/franchises', '/franchiseId*', 'statistics'],
+  matcher: ['/watchlist','/finished','/add','/all','/details/:id*','/edit/:id*', '/franchises', '/franchiseId/:path*', 'statistics'],
 }
