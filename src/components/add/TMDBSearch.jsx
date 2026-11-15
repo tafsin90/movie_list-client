@@ -1,43 +1,74 @@
 "use client";
 
 import { Magnifier } from "@gravity-ui/icons";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function TMDBSearch({ onSelect }) {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const skipNextSearch = useRef(false);
 
-  async function handleSearch(value) {
-    setQuery(value);
-
-    if (value.trim() === "") {
-      setMovies([]);
+  useEffect(() => {
+    if (skipNextSearch.current) {
+      skipNextSearch.current = false;
       return;
     }
 
-    try {
-      setIsLoading(true);
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/search?query=${encodeURIComponent(value)}`,
-      );
-
-      const data = await response.json();
-      // console.log(data)
-
-      setMovies(data.results || []);
-    } catch (error) {
-      console.error("TMDB search failed:", error);
+    const searchTerm = query.trim();
+    if (!searchTerm) {
       setMovies([]);
-    } finally {
       setIsLoading(false);
+      return;
     }
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/media/search?query=${encodeURIComponent(searchTerm)}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("TMDB search failed");
+        }
+
+        const data = await response.json();
+
+        if (!controller.signal.aborted) {
+          setMovies(data.results || []);
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("TMDB search failed:", error);
+          setMovies([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
+
+  function handleSearch(value) {
+    setMovies([]);
+    setIsLoading(Boolean(value.trim()));
+    setQuery(value);
   }
 
   async function handleSelectMovie(movie) {
-    setQuery(movie.title || movie.name);
+    const title = movie.title || movie.name || "";
+    skipNextSearch.current = title !== query;
+    setQuery(title);
     setMovies([]);
+    setIsLoading(false);
     // console.log(movie)
 
     try {

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Magnifier } from "@gravity-ui/icons";
 import MediaTable from "@/components/media/MediaTable";
 import { authClient } from "@/lib/auth-client";
+import GenreFilter from "./GenreFilter";
+import { TiArrowUnsorted } from "react-icons/ti";
 
 const API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -21,6 +23,8 @@ export default function MediaCollection({ status }) {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [jumpPage, setJumpPage] = useState("1");
+
+  const [selectedGenres, setSelectedGenres] = useState([]);
 
   // Search Debouncing
   useEffect(() => {
@@ -54,8 +58,8 @@ export default function MediaCollection({ status }) {
           search: debouncedSearch,
           category: selectedType,
           sort: sortBy,
+          genres: selectedGenres.join(","),
         });
-
         const response = await fetch(
           `${API_URL}/api/media/collection/${session.user.id}/${status}?${params}`,
         );
@@ -88,6 +92,7 @@ export default function MediaCollection({ status }) {
     debouncedSearch,
     selectedType,
     sortBy,
+    selectedGenres,
   ]);
 
   const isWatchlist = status === "watchlist";
@@ -176,7 +181,7 @@ export default function MediaCollection({ status }) {
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {/* Search */}
           <div className="col-span-2 flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 transition-colors focus-within:border-[#e5a84b] sm:col-span-1 sm:w-64">
-            <Magnifier className="h-4 w-4 shrink-0 text-white/40" />
+            <Magnifier className="h-4 w-4 shrink-0 text-[#e5a84b]" />
 
             <input
               type="text"
@@ -189,42 +194,61 @@ export default function MediaCollection({ status }) {
               className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
             />
           </div>
-
+          {/* GENRE FILTER */}
+          <div className="col-span-2 sm:col-span-1">
+            <GenreFilter
+              selectedGenres={selectedGenres}
+              onChange={(genres) => {
+                setSelectedGenres(genres);
+                setPage(1);
+              }}
+            />
+          </div>
           {/* Filter */}
-          <select
-            value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value);
-              setPage(1);
-            }}
-            className="min-w-0 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
-          >
-            <option value="All">All Types</option>
-            <option value="Movie">Movies</option>
-            <option value="Series">Series</option>
-            <option value="Anime">Anime</option>
-            <option value="Animation">Animation</option>
-            <option value="Documentary">Documentary</option>
-            <option value="Short Film">Short Film</option>
-          </select>
+          <div className="relative min-w-0">
+            <TiArrowUnsorted className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#e5a84b]" />
+
+            <select
+              value={selectedType}
+              onChange={(e) => {
+                setSelectedType(e.target.value);
+                setPage(1);
+              }}
+              className="w-full min-w-0 appearance-none rounded-lg border border-white/10 bg-[#1c1c1c] py-3 pl-9 pr-8 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
+            >
+              <option value="All">All Types</option>
+              <option value="Movie">Movies</option>
+              <option value="Series">Series</option>
+              <option value="Anime">Anime</option>
+              <option value="Animation">Animation</option>
+              <option value="Documentary">Documentary</option>
+              <option value="Short Film">Short Film</option>
+            </select>
+          </div>
 
           {/* Sorting */}
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setPage(1);
-            }}
-            className="min-w-0 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-3 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
-          >
-            <option value="recent">
-              {isWatchlist ? "Recently Added to Wishlist" : "Recently Watched"}
-            </option>
+          <div className="relative min-w-0">
+            <TiArrowUnsorted className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#e5a84b]" />
 
-            <option value="title">Title: A-Z</option>
-            <option value="rating">Highest IMDb Rating</option>
-            <option value="newest">Newest Release</option>
-          </select>
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+              className="w-full min-w-0 appearance-none rounded-lg border border-white/10 bg-[#1c1c1c] py-3 pl-9 pr-8 text-sm text-white/70 outline-none focus:border-[#e5a84b]"
+            >
+              <option value="recent">
+                {isWatchlist
+                  ? "Recently Added to Wishlist"
+                  : "Recently Watched"}
+              </option>
+
+              <option value="title">Title: A-Z</option>
+              <option value="rating">Highest IMDb Rating</option>
+              <option value="newest">Newest Release</option>
+            </select>
+          </div>
         </div>
       </div>
 

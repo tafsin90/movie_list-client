@@ -26,11 +26,12 @@ const StatisticsCharts = dynamic(
 );
 
 const categoryColors = {
-  movie: "#E5A83B",
-  movies: "#E5A83B",
-  series: "#4F8CFF",
-  tv: "#4F8CFF",
-  anime: "#55B987",
+  movie: "#F4B942",
+  "short film": "#FF5C5C",
+  series: "#4285F4",
+  documentary: "#A78BFA",
+  anime: "#34C88A",
+  animation: "#F472B6",
 };
 
 function getCategoryColor(category) {

@@ -194,6 +194,45 @@ useEffect(() => {
     return () => observer.disconnect();
   }, [groupedArchive]);
 
+//   // SAVE SCROLL POSITION
+// useEffect(() => {
+//   const saveScrollPosition = () => {
+//     sessionStorage.setItem(
+//       "allPageScrollPosition",
+//       String(window.scrollY),
+//     );
+//   };
+
+//   window.addEventListener("scroll", saveScrollPosition, {
+//     passive: true,
+//   });
+
+//   return () => {
+//     window.removeEventListener("scroll", saveScrollPosition);
+//   };
+// }, []);
+// // RESTORE SCROLL POSITION
+// useEffect(() => {
+//   if (loading || isPending) return;
+
+//   const savedPosition = sessionStorage.getItem(
+//     "allPageScrollPosition",
+//   );
+
+//   if (savedPosition === null) return;
+
+//   requestAnimationFrame(() => {
+//     requestAnimationFrame(() => {
+//       window.scrollTo({
+//         top: Number(savedPosition),
+//         behavior: "auto",
+//       });
+
+//       sessionStorage.removeItem("allPageScrollPosition");
+//     });
+//   });
+// }, [loading, isPending]);
+
   // Scroll to selected decade
   const handleDecadeSelect = (decade) => {
     setActiveDecade(decade);
