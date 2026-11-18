@@ -37,6 +37,7 @@ const defaultGenres = [
   "Psychological Thriller",
   "Historical Fiction",
   "Biography",
+  "Superhero",
 ];
 
 export default function MediaForm({ destination }) {
