@@ -54,10 +54,13 @@ export default function AddFranchiseMedia({
         const firstPage = await fetchPage(1);
         const remainingPages = await Promise.all(
           Array.from(
-            { length: Math.max(0, (firstPage.pagination?.totalPages || 1) - 1) },
+            {
+              length: Math.max(0, (firstPage.pagination?.totalPages || 1) - 1),
+            },
             (_, index) => fetchPage(index + 2),
           ),
         );
+
         const allMedia = [
           ...(firstPage.items || []),
           ...remainingPages.flatMap((page) => page.items || []),
@@ -94,7 +97,9 @@ export default function AddFranchiseMedia({
 
     const notAdded = !existingMediaIds.includes(item._id);
 
-    return matchesSearch && notAdded;
+    const hasNoFranchise = !item.franchises?.length;
+
+    return matchesSearch && notAdded && hasNoFranchise;
   });
 
   // SELECT / DESELECT MEDIA
@@ -289,6 +294,21 @@ export default function AddFranchiseMedia({
                       {" · "}
                       {item.category || item.mediaType}
                     </p>
+
+                    {/* FRANCHISE MEMBERSHIPS */}
+
+                    {item.franchises?.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {item.franchises.map((franchise) => (
+                          <span
+                            key={franchise._id}
+                            className="rounded-full border border-[#e5a84b]/20 bg-[#e5a84b]/10 px-2 py-0.5 text-[10px] text-[#e5a84b]"
+                          >
+                            {franchise.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#e5a84b] text-sm text-[#e5a84b]">

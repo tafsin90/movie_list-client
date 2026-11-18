@@ -111,12 +111,7 @@ function TiltPoster({ src, alt }) {
         className="relative aspect-[2/3] w-full overflow-hidden rounded-[28px] rounded-br-[6px] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)] ring-1 ring-white/15"
       >
         {src ? (
-          <Image
-            src={src}
-            alt={alt}
-            fill
-            className="object-cover"
-          />
+          <Image src={src} alt={alt} fill className="object-cover" />
         ) : (
           <div className="flex aspect-[2/3] items-center justify-center bg-[#202020] text-sm text-white/30">
             No poster available
@@ -269,6 +264,7 @@ export default function MediaDetails({ id }) {
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70 backdrop-blur">
               {media.category}
             </span>
+
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs ${
                 isFinished
@@ -322,6 +318,29 @@ export default function MediaDetails({ id }) {
               ))
             ) : (
               <span className="text-sm text-white/40">No genres added</span>
+            )}
+          </div>
+
+          {/* Franchise Memberships */}
+          <div className="mt-6">
+            <p className="mb-3 text-xs font-medium tracking-wider text-white/40">
+              PART OF (Franchise):
+            </p>
+
+            {media.franchises?.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2">
+                {media.franchises.map((franchise, index) => (
+                  <div key={franchise._id} className="flex items-center gap-2">
+                    {index > 0 && <span className="text-[#e5a84b]/60">→</span>}
+
+                    <span className="rounded-full border border-[#e5a84b]/20 bg-[#e5a84b]/10 px-2 py-1 text-xs text-[#e5a84b]">
+                      {franchise.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-white/30">Not part of any franchise</p>
             )}
           </div>
 

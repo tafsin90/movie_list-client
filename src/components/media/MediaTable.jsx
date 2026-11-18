@@ -1,7 +1,7 @@
 "use client";
 
 import { Chip, Table } from "@heroui/react";
-import { Pencil, Eye } from "@gravity-ui/icons";
+import { Pencil, Eye, ArrowRight } from "@gravity-ui/icons";
 import Image from "next/image";
 import Link from "next/link";
 import DeleteMediaButton from "./DeleteMediaButton";
@@ -67,6 +67,20 @@ const MediaTable = ({ items, onDelete }) => {
                       {movie.category || "N/A"}
                     </Chip>
                   </div>
+
+                  {/* Franchise Memberships */}
+                  {movie.franchises?.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {movie.franchises.map((franchise) => (
+                        <span
+                          key={franchise._id}
+                          className="rounded-full border border-[#e5a84b]/20 bg-[#e5a84b]/10 px-2 py-0.5 text-[10px] text-[#e5a84b]"
+                        >
+                          {franchise.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <span className="mt-2 text-sm font-medium text-[#e5a84b]">
@@ -82,7 +96,6 @@ const MediaTable = ({ items, onDelete }) => {
               </p>
             </div>
 
-            {/* Actions */}
             {/* Actions */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               {/* Edit */}
@@ -106,7 +119,7 @@ const MediaTable = ({ items, onDelete }) => {
               {/* Delete */}
               <div className="col-span-2">
                 <DeleteMediaButton
-                title={movie.title}
+                  title={movie.title}
                   mediaId={movie._id || movie.id}
                   onDelete={onDelete}
                 />
@@ -187,7 +200,7 @@ const MediaTable = ({ items, onDelete }) => {
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex min-w-0 flex-col gap-1.5">
                           <span className="text-base font-semibold text-white">
                             {movie.title}
                           </span>
@@ -195,6 +208,26 @@ const MediaTable = ({ items, onDelete }) => {
                           <span className="text-sm text-white/40">
                             {movie.releaseDate || "N/A"}
                           </span>
+
+                          {/* Franchise Memberships */}
+                          {movie.franchises?.length > 0 && (
+                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                              {movie.franchises.map((franchise, index) => (
+                                <div
+                                  key={franchise._id}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  {index > 0 && (
+                                    <span className="text-[#e5a84b]/60"><ArrowRight /></span>
+                                  )}
+
+                                  <span className="rounded-full border border-[#e5a84b]/20 bg-[#e5a84b]/10 px-2 py-0.5 text-[10px] text-[#e5a84b]">
+                                    {franchise.name}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Table.Cell>
@@ -243,7 +276,7 @@ const MediaTable = ({ items, onDelete }) => {
                         </Link>
 
                         <DeleteMediaButton
-                        title={movie.title}
+                          title={movie.title}
                           mediaId={movie._id || movie.id}
                           onDelete={onDelete}
                         />
