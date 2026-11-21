@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@heroui/react";
+import FranchiseWatchOrder from "@/components/franchises/FranchiseWatchOrder";
 
 import AddFranchiseMedia from "@/components/franchises/AddFranchiseMedia";
 import FranchiseForm from "@/components/franchises/FranchiseForm";
@@ -11,7 +12,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { RiClapperboardAiFill, RiFilmAiFill } from "react-icons/ri";
-import { TrashBin, Pencil } from "@gravity-ui/icons";
+import { TrashBin } from "@gravity-ui/icons";
 import DeleteConfirmationModal from "@/components/franchises/DeleteConfirmationModal";
 import { TiPlus } from "react-icons/ti";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
@@ -233,9 +234,7 @@ export default function FranchiseDetails() {
 
       setDeletingMedia(null);
       setItems((previousItems) =>
-        previousItems.filter(
-          (item) => item.media?._id !== deletingMedia._id,
-        ),
+        previousItems.filter((item) => item.media?._id !== deletingMedia._id),
       );
     } catch (error) {
       alert(error.message);
@@ -475,7 +474,7 @@ export default function FranchiseDetails() {
           <section className="mb-8">
             <div className="mb-6">
               <h2 className="text-xl font-semibold sm:text-2xl">
-                Subcollections
+                Sub-collections
               </h2>
 
               <p className="mt-1 text-sm text-white/40">
@@ -521,7 +520,7 @@ export default function FranchiseDetails() {
             <div className="flex w-full items-center gap-2 sm:w-auto">
               <button
                 onClick={() => handleSort("custom")}
-                className={`flex-1 rounded-lg px-3 py-2 text-xs sm:flex-none sm:px-4 sm:text-sm ${
+                className={`hover:cursor-pointer flex-1 rounded-lg px-3 py-2 text-xs sm:flex-none sm:px-4 sm:text-sm ${
                   sortMode === "custom"
                     ? "bg-[#e5a84b] text-black"
                     : "bg-white/5 text-white/60"
@@ -532,7 +531,7 @@ export default function FranchiseDetails() {
 
               <button
                 onClick={() => handleSort("release")}
-                className={`flex-1 rounded-lg px-3 py-2 text-xs sm:flex-none sm:px-4 sm:text-sm ${
+                className={`hover:cursor-pointer flex-1 rounded-lg px-3 py-2 text-xs sm:flex-none sm:px-4 sm:text-sm ${
                   sortMode === "release"
                     ? "bg-[#e5a84b] text-black"
                     : "bg-white/5 text-white/60"
@@ -540,6 +539,17 @@ export default function FranchiseDetails() {
               >
                 Release Order
               </button>
+
+              <FranchiseWatchOrder
+                franchise={franchise}
+                userId={userId}
+                onSaved={(watchOrder) => {
+                  setFranchise((previousFranchise) => ({
+                    ...previousFranchise,
+                    watchOrder,
+                  }));
+                }}
+              />
             </div>
           </div>
 
